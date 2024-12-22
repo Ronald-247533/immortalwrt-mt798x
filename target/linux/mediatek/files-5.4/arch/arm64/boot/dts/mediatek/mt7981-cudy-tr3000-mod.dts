@@ -2,9 +2,17 @@
 #include "mt7981.dtsi"
 / {
 	model = "Cudy TR3000 mod";
-	compatible = "Cudy TR3000","mediatek,mt7981-spim-snand-rfb";
+	compatible = "Cudy TR3000","mediatek,mt7981";
+		
+	aliases {
+		led-boot = &led_system_blue;
+		led-failsafe = &led_system_red;
+		led-running = &led_system_blue;
+		led-upgrade = &led_system_red;
+	};
+	
 	chosen {
-		bootargs = "console=ttyS0,115200n1 loglevel=8  \
+		bootargs = "console=ttyS0,115200n1 loglevel=8 \
 				earlycon=uart8250,mmio32,0x11002000";
 	};
 
@@ -13,17 +21,19 @@
 		reg = <0 0x40000000 0 0x20000000>;
 	};
 
-	gpio-leds {
-		compatible = "gpio-leds";
-		
-		blue {
-			label = "oem:green:blue";
-			gpios = <&pio 10 GPIO_ACTIVE_LOW>;
-		};
+	gpio-keys {
+		compatible = "gpio-keys";
+		poll-interval = <20>;
 
-		red {
-			label = "oem:green:red";
-			gpios = <&pio 11 GPIO_ACTIVE_LOW>;
+		reset {
+			label = "reset";
+			linux,code = <KEY_RESTART>;
+			gpios = <&pio 1 GPIO_ACTIVE_LOW>;
+		};
+		mulplex {
+			label = "mulplex";
+			gpios = <&pio 0 GPIO_ACTIVE_LOW>;
+			linux,code = <KEY_SETUP>;
 		};
 	};
 
@@ -43,28 +53,24 @@
 			gpios = <&pio 9 GPIO_ACTIVE_LOW>;
 		};
 	};
-	
-	gpio-keys-polled {
-		compatible = "gpio-keys-polled";
-		#address-cells = <1>;
-		#size-cells = <0>;
-		poll-interval = <20>;
 
-		reset {
-			label = "reset";
-			gpios = <&pio 1 GPIO_ACTIVE_LOW>;
-			linux,code = <KEY_RESTART>;
+	leds {
+		compatible = "gpio-leds";
+		
+		led_system_blue {
+			label = "oem:green:blue";
+			gpios = <&pio 10 GPIO_ACTIVE_LOW>;
 		};
-		mulplex {
-			label = "mulplex";
-			gpios = <&pio 0 GPIO_ACTIVE_LOW>;
-			linux,code = <KEY_SETUP>;
+
+		led_system_red {
+			label = "oem:green:red";
+			gpios = <&pio 11 GPIO_ACTIVE_LOW>;
 		};
 	};
 
+
 	nmbm_spim_nand {
 		compatible = "generic,nmbm";
-
 		#address-cells = <1>;
 		#size-cells = <1>;
 
@@ -109,49 +115,8 @@
 		};
 	};
 
-	sound_wm8960 {
-		compatible = "mediatek,mt79xx-wm8960-machine";
-		mediatek,platform = <&afe>;
-		audio-routing = "Headphone", "HP_L",
-				"Headphone", "HP_R",
-				"LINPUT1", "AMIC",
-				"RINPUT1", "AMIC";
-		mediatek,audio-codec = <&wm8960>;
-		status = "disabled";
-	};
-
-	sound_si3218x {
-		compatible = "mediatek,mt79xx-si3218x-machine";
-		mediatek,platform = <&afe>;
-		mediatek,ext-codec = <&proslic_spi>;
-		status = "disabled";
-	};
 };
 
-&afe {
-	pinctrl-names = "default";
-	pinctrl-0 = <&pcm_pins>;
-	status = "okay";
-};
-
-&i2c0 {
-	pinctrl-names = "default";
-	pinctrl-0 = <&i2c_pins>;
-	status = "disabled";
-
-	wm8960: wm8960@1a {
-		compatible = "wlf,wm8960";
-		reg = <0x1a>;
-	};
-};
-
-&uart0 {
-	status = "okay";
-};
-
-&watchdog {
-	status = "okay";
-};
 
 &eth {
         status = "okay";
@@ -180,16 +145,16 @@
 	};
 
         mdio: mdio-bus {
-                #address-cells = <1>;
-                #size-cells = <0>;
+            #address-cells = <1>;
+            #size-cells = <0>;
 
-		phy0: ethernet-phy@0 {
-			compatible = "ethernet-phy-id03a2.9461";
-			reg = <0>;
-			phy-mode = "gmii";
-			nvmem-cells = <&phy_calibration>;
-			nvmem-cell-names = "phy-cal-data";
-		};
+			phy0: phy@0 {
+				compatible = "ethernet-phy-id03a2.9461";
+				reg = <0>;
+				phy-mode = "gmii";
+				nvmem-cells = <&phy_calibration>;
+				nvmem-cell-names = "phy-cal-data";
+			};
 
 			phy1: phy@1 {
 				compatible = "ethernet-phy-id001c.c849";
@@ -213,14 +178,16 @@
 	pinctrl-names = "default";
 	pinctrl-0 = <&spi0_flash_pins>;
 	status = "okay";
+
 	spi_nand: spi_nand@0 {
+		compatible = "spi-nand";
 		#address-cells = <1>;
 		#size-cells = <1>;
-		compatible = "spi-nand";
 		reg = <0>;
+
 		spi-max-frequency = <52000000>;
-		spi-tx-buswidth = <4>;
-		spi-rx-buswidth = <4>;
+		spi-tx-bus-width = <4>;
+		spi-rx-bus-width = <4>;
 	};
 };
 
@@ -243,14 +210,6 @@
 };
 
 &pio {
-
-	i2c_pins: i2c-pins-g0 {
-                mux {
-                        function = "i2c";
-                        groups = "i2c0_0";
-                };
-        };
-
         pcm_pins: pcm-pins-g0 {
                 mux {
                         function = "pcm";
@@ -318,6 +277,20 @@
                         groups = "uart2_1";
                 };
         };
+};
+
+&uart0 {
+	status = "okay";
+};
+
+&watchdog {
+	status = "okay";
+};
+
+&afe {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pcm_pins>;
+	status = "okay";
 };
 
 &xhci {

@@ -814,7 +814,7 @@ define Device/cudy_tr3000-mod
   DEVICE_VENDOR := Cudy
   DEVICE_MODEL := TR3000
   DEVICE_VARIANT := mod
-  DEVICE_DTS := mt7981b-cudy-tr3000-mod
+  DEVICE_DTS := mt7981-cudy-tr3000-mod
   DEVICE_DTS_DIR := $(DTS_DIR)/mediatek
   SUPPORTED_DEVICES := cudy,tr3000
   UBINIZE_OPTS := -E 5

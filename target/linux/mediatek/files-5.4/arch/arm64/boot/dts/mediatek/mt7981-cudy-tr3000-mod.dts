@@ -57,13 +57,13 @@
 	leds {
 		compatible = "gpio-leds";
 		
-		led_system_blue {
+		led_system_blue: system_blue {
 			label = "led_system_blue";
 			gpios = <&pio 10 GPIO_ACTIVE_LOW>;
 		};
 
-		led_system_red {
-			label = "led_system_blue";
+		led_system_red: system_red {
+			label = "led_system_red";
 			gpios = <&pio 11 GPIO_ACTIVE_LOW>;
 		};
 	};

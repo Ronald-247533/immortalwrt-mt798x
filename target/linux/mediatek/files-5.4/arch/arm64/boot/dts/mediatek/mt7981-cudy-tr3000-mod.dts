@@ -134,7 +134,6 @@
 
 &eth {
         status = "okay";
-        lower-mtd-name = "bdinfo";
 
         gmac0: mac@0 {
 			compatible = "mediatek,eth-mac";
@@ -151,6 +150,7 @@
 			reg = <1>;
 			mtd-mac-address = <&bdinfo 0xDE00>;
 			phy-mode = "gmii";
+			phy-handle = <&phy0>;
 			nvmem-cell-names = "mac-address";
 			nvmem-cells = <&macaddr_bdinfo_de00 0>;
 		};
@@ -158,6 +158,14 @@
         mdio: mdio-bus {
             #address-cells = <1>;
             #size-cells = <0>;
+
+			phy0: phy@0 {
+				compatible = "ethernet-phy-id03a2.9461";
+				reg = <0>;
+				phy-mode = "gmii";
+				nvmem-cells = <&phy_calibration>;
+				nvmem-cell-names = "phy-cal-data";
+			};
 
 			phy1: phy@1 {
 				reg = <1>;
